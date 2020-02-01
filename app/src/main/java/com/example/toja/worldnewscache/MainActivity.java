@@ -67,6 +67,7 @@ public class MainActivity extends AppCompatActivity {
         initRecyclerView();
         setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
         initSearchView();
+        subscribeObservers();
     }
 
     private void initRecyclerView() {
@@ -93,6 +94,28 @@ public class MainActivity extends AppCompatActivity {
                 return false;
             }
         });
+    }
+
+    private void subscribeObservers() {
+        articleListViewModel.getViewState().observe(this,new Observer<ArticleListViewModel.ViewState>() {
+            @Override
+            public void onChanged(ArticleListViewModel.ViewState viewState) {
+                if(viewState != null) {
+                    switch (viewState) {
+                        case ARTICLES: {
+                            break;
+                        }
+                        case CATEGORIES: {
+                            displayCategories();
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    private void displayCategories() {
+        mAdapter.displaySearchCategories();
     }
 
     private void startArticleActivity(Article article) {
