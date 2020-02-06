@@ -3,36 +3,56 @@ package com.example.toja.worldnewscache.responses.models;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import androidx.room.ColumnInfo;
+import androidx.room.Entity;
+
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
+@Entity(tableName = "articles")
 public class Article implements Parcelable {
 
     @SerializedName("author")
     @Expose
+    @ColumnInfo(name = "author")
     private String author;
     @SerializedName("title")
     @Expose
+    @ColumnInfo(name = "title")
     private String title;
     @SerializedName("description")
     @Expose
+    @ColumnInfo(name = "description")
     private String description;
     @SerializedName("url")
     @Expose
+    @ColumnInfo(name = "url")
     private String url;
     @SerializedName("urlToImage")
     @Expose
+    @ColumnInfo(name = "urlToImage")
     private String urlToImage;
     @SerializedName("publishedAt")
     @Expose
+    @ColumnInfo(name = "publishedAt")
     private String publishedAt;
     @SerializedName("content")
     @Expose
+    @ColumnInfo(name = "content")
     private String content;
+    @ColumnInfo(name = "timestamp")
+    private int timestamp;
 
     public Article() { }
 
-    public Article(String author,String title,String description,String url,String urlToImage,String publishedAt,String content) {
+    public Article(String author,
+                   String title,
+                   String description,
+                   String url,
+                   String urlToImage,
+                   String publishedAt,
+                   String content,
+                   int timestamp) {
         this.author = author;
         this.title = title;
         this.description = description;
@@ -40,6 +60,7 @@ public class Article implements Parcelable {
         this.urlToImage = urlToImage;
         this.publishedAt = publishedAt;
         this.content = content;
+        this.timestamp = timestamp;
     }
 
     protected Article(Parcel in) {
@@ -50,6 +71,7 @@ public class Article implements Parcelable {
         urlToImage = in.readString();
         publishedAt = in.readString();
         content = in.readString();
+        timestamp = in.readInt();
     }
 
     public static final Creator<Article> CREATOR = new Creator<Article>() {
@@ -120,6 +142,14 @@ public class Article implements Parcelable {
         this.content = content;
     }
 
+    public int getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(int timestamp) {
+        this.timestamp = timestamp;
+    }
+
     @Override
     public String toString() {
         return "Article{" +
@@ -130,6 +160,7 @@ public class Article implements Parcelable {
                 ", urlToImage='" + urlToImage + '\'' +
                 ", publishedAt='" + publishedAt + '\'' +
                 ", content='" + content + '\'' +
+                ", timestamp=" + timestamp +
                 '}';
     }
 
@@ -147,5 +178,6 @@ public class Article implements Parcelable {
         dest.writeString(urlToImage);
         dest.writeString(publishedAt);
         dest.writeString(content);
+        dest.writeInt(timestamp);
     }
 }
