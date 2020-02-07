@@ -26,4 +26,6 @@ public abstract class ArticleDatabase extends RoomDatabase {
         }
         return instance;
     }
+
+    public abstract ArticleDao getArticleDao();
 }
