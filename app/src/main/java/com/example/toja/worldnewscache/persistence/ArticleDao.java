@@ -21,7 +21,7 @@ public interface ArticleDao {
     @Insert(onConflict = REPLACE)
     void insertArticle(Article article);
 
-    @Query("UPDATE articles SET author = :author, description = :description, url = :url, urlToImage = :urlToImage, " +
+    @Query("UPDATE articles SET title = :title, author = :author, description = :description, url = :url, urlToImage = :urlToImage, " +
     "publishedAt = :publishedAt, content = :content WHERE title = :title")
     void updateArticles(String title,
                         String author,
@@ -31,7 +31,7 @@ public interface ArticleDao {
                         String publishedAt,
                         String content);
 
-    @Query("SELECT * FROM articles WHERE title LIKE '5' || :query || '%' OR description LIKE '%' || :query || '%' " +
+    @Query("SELECT * FROM articles WHERE title LIKE '%' || :query || '%' OR description LIKE '%' || :query || '%'" +
     " LIMIT (:pageNumber * 30)")
     LiveData<List<Article>> searchArticles(String query, int pageNumber);
 

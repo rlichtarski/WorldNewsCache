@@ -3,8 +3,10 @@ package com.example.toja.worldnewscache.responses.models;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
+import androidx.room.PrimaryKey;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
@@ -42,6 +44,9 @@ public class Article implements Parcelable {
     private String content;
     @ColumnInfo(name = "timestamp")
     private int timestamp;
+    @PrimaryKey(autoGenerate = true)
+    @NonNull
+    private int articleId;
 
     public Article() { }
 
@@ -52,7 +57,8 @@ public class Article implements Parcelable {
                    String urlToImage,
                    String publishedAt,
                    String content,
-                   int timestamp) {
+                   int timestamp,
+                   int articleId) {
         this.author = author;
         this.title = title;
         this.description = description;
@@ -61,6 +67,7 @@ public class Article implements Parcelable {
         this.publishedAt = publishedAt;
         this.content = content;
         this.timestamp = timestamp;
+        this.articleId = articleId;
     }
 
     protected Article(Parcel in) {
@@ -72,6 +79,7 @@ public class Article implements Parcelable {
         publishedAt = in.readString();
         content = in.readString();
         timestamp = in.readInt();
+        articleId = in.readInt();
     }
 
     public static final Creator<Article> CREATOR = new Creator<Article>() {
@@ -146,6 +154,14 @@ public class Article implements Parcelable {
         return timestamp;
     }
 
+    public int getArticleId() {
+        return articleId;
+    }
+
+    public void setArticleId(int articleId) {
+        this.articleId = articleId;
+    }
+
     public void setTimestamp(int timestamp) {
         this.timestamp = timestamp;
     }
@@ -161,6 +177,7 @@ public class Article implements Parcelable {
                 ", publishedAt='" + publishedAt + '\'' +
                 ", content='" + content + '\'' +
                 ", timestamp=" + timestamp +
+                ", articleId=" + articleId +
                 '}';
     }
 
@@ -179,5 +196,6 @@ public class Article implements Parcelable {
         dest.writeString(publishedAt);
         dest.writeString(content);
         dest.writeInt(timestamp);
+        dest.writeInt(articleId);
     }
 }

@@ -26,10 +26,10 @@ public class ArticleRepository {
 
     private static final String TAG = "ArticleRepository";
 
-    private ArticleRepository instance;
+    private static ArticleRepository instance;
     private ArticleDao articleDao;
 
-    public ArticleRepository getInstance(Context context) {
+    public static ArticleRepository getInstance(Context context) {
         if(instance == null) {
             instance = new ArticleRepository(context);
         }

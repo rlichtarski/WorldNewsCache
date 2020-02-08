@@ -14,8 +14,12 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.toja.worldnewscache.adapters.ArticleRecyclerAdapter;
 import com.example.toja.worldnewscache.responses.models.Article;
 import com.example.toja.worldnewscache.utils.Constants;
+import com.example.toja.worldnewscache.utils.Resource;
+import com.example.toja.worldnewscache.utils.TestingObservers;
 import com.example.toja.worldnewscache.utils.VerticalSpacingItemDecorator;
 import com.example.toja.worldnewscache.viewmodels.ArticleListViewModel;
+
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -54,6 +58,7 @@ public class MainActivity extends AppCompatActivity {
                 mSearchView.clearFocus();
             }
             mAdapter.displayLoading();
+            searchArticlesApi(category);
         }
     };
 
@@ -86,6 +91,7 @@ public class MainActivity extends AppCompatActivity {
         mSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
+                searchArticlesApi(query);
                 return false;
             }
 
@@ -97,6 +103,21 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void subscribeObservers() {
+        articleListViewModel.getArticles().observe(this,new Observer<Resource<List<Article>>>() {
+            @Override
+            public void onChanged(Resource<List<Article>> listResource) {
+                if(listResource != null) {
+                    Log.d(TAG,"onChanged: status: " + listResource.status);
+
+                    if(listResource.data != null) {
+                        TestingObservers.printArticles(TAG, listResource.data);
+                    } else {
+                        Log.e(TAG,"onChanged: ERROR: data is null");
+                    }
+                }
+            }
+        });
+
         articleListViewModel.getViewState().observe(this,new Observer<ArticleListViewModel.ViewState>() {
             @Override
             public void onChanged(ArticleListViewModel.ViewState viewState) {
@@ -112,6 +133,10 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    private void searchArticlesApi(String query) {
+        articleListViewModel.searchArticlesApi(query, 1);
     }
 
     private void displayCategories() {
