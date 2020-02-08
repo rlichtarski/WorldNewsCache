@@ -15,6 +15,10 @@ public class LiveDataCallAdapter<R> implements CallAdapter<R, LiveData<ApiRespon
 
     private Type responseType;
 
+    public LiveDataCallAdapter(Type responseType) {
+        this.responseType = responseType;
+    }
+
     @Override
     public Type responseType() {
         return responseType;

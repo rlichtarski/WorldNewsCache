@@ -9,6 +9,7 @@ import androidx.lifecycle.LiveData;
 import com.example.toja.worldnewscache.AppExecutors;
 import com.example.toja.worldnewscache.persistence.ArticleDao;
 import com.example.toja.worldnewscache.persistence.ArticleDatabase;
+import com.example.toja.worldnewscache.requests.ServiceGenerator;
 import com.example.toja.worldnewscache.responses.ApiResponse;
 import com.example.toja.worldnewscache.responses.NewsResponse;
 import com.example.toja.worldnewscache.responses.models.Article;
@@ -16,6 +17,9 @@ import com.example.toja.worldnewscache.utils.NetworkBoundResource;
 import com.example.toja.worldnewscache.utils.Resource;
 
 import java.util.List;
+
+import static com.example.toja.worldnewscache.utils.Constants.API_KEY;
+import static com.example.toja.worldnewscache.utils.Constants.PAGE_SIZE;
 
 public class ArticleRepository {
 
@@ -55,7 +59,11 @@ public class ArticleRepository {
             @NonNull
             @Override
             protected LiveData<ApiResponse<NewsResponse>> createCall() {
-                return null;
+                return ServiceGenerator.getNewsApi().searchNews(query,
+                        "en",
+                        String.valueOf(pageNumber),
+                        PAGE_SIZE,
+                        API_KEY);
             }
         }.getAsLiveData();
     }
