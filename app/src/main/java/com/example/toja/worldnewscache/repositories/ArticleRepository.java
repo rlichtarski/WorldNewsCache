@@ -1,6 +1,7 @@
 package com.example.toja.worldnewscache.repositories;
 
 import android.content.Context;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -23,6 +24,8 @@ import static com.example.toja.worldnewscache.utils.Constants.PAGE_SIZE;
 
 public class ArticleRepository {
 
+    private static final String TAG = "ArticleRepository";
+
     private ArticleRepository instance;
     private ArticleDao articleDao;
 
@@ -42,7 +45,27 @@ public class ArticleRepository {
 
             @Override
             protected void saveCallResult(@NonNull NewsResponse item) {
+                if(item.getArticles() != null) {
+                    Article[] articles = new Article[item.getArticles().size()];
 
+                    int index = 0;
+                    for(long rowId : articleDao.insertArticles((Article[]) (item.getArticles().toArray(articles)))) {
+                        if(rowId == -1) {
+                            Log.d(TAG,"saveCallResult: CONFLICT. This article is already in cache");
+                            //if the article already exists, just update it
+                            articleDao.updateArticles(
+                                    articles[index].getTitle(),
+                                    articles[index].getAuthor(),
+                                    articles[index].getDescription(),
+                                    articles[index].getUrl(),
+                                    articles[index].getUrlToImage(),
+                                    articles[index].getPublishedAt(),
+                                    articles[index].getContent()
+                            );
+                        }
+                        index++;
+                    }
+                }
             }
 
             @Override
