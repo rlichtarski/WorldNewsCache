@@ -13,6 +13,10 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.RequestManager;
+import com.bumptech.glide.request.RequestOptions;
 import com.example.toja.worldnewscache.adapters.ArticleRecyclerAdapter;
 import com.example.toja.worldnewscache.responses.models.Article;
 import com.example.toja.worldnewscache.utils.Constants;
@@ -84,7 +88,7 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         VerticalSpacingItemDecorator itemDecorator = new VerticalSpacingItemDecorator(30);
         recyclerView.addItemDecoration(itemDecorator);
-        mAdapter = new ArticleRecyclerAdapter();
+        mAdapter = new ArticleRecyclerAdapter(initGlide());
         recyclerView.setAdapter(mAdapter);
         mAdapter.setOnCategoryClickListener(categoryItemClickListener);
         mAdapter.setOnArticleClickListener(articleItemClickListener);
@@ -104,6 +108,15 @@ public class MainActivity extends AppCompatActivity {
                 return false;
             }
         });
+    }
+
+    private RequestManager initGlide() {
+        RequestOptions requestOptions = new RequestOptions()
+                .placeholder(R.drawable.white_background)
+                .error(R.drawable.white_background);
+
+        return Glide.with(this)
+                .setDefaultRequestOptions(requestOptions);
     }
 
     private void subscribeObservers() {

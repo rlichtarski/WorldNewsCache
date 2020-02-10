@@ -9,6 +9,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.RequestManager;
 import com.bumptech.glide.request.RequestOptions;
 import com.example.toja.worldnewscache.R;
 import com.example.toja.worldnewscache.responses.models.Article;
@@ -22,6 +23,11 @@ public class ArticleRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.Vi
 
     private List<Article> mArticles;
     public int mViewType;
+    private RequestManager requestManager;
+
+    public ArticleRecyclerAdapter(RequestManager requestManager) {
+        this.requestManager = requestManager;
+    }
 
     @NonNull
     @Override
@@ -32,7 +38,7 @@ public class ArticleRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.Vi
         switch (viewType) {
             case Constants.ARTICLE_TYPE: {
                 view = LayoutInflater.from(parent.getContext()).inflate(R.layout.article_list_item,parent,false);
-                return new ArticleViewHolder(view);
+                return new ArticleViewHolder(view, requestManager);
             }
             case Constants.LOADING_TYPE: {
                 view = LayoutInflater.from(parent.getContext()).inflate(R.layout.layout_loading_list_item,parent,false);
@@ -40,7 +46,7 @@ public class ArticleRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.Vi
             }
             case Constants.CATEGORY_TYPE: {
                 view = LayoutInflater.from(parent.getContext()).inflate(R.layout.layout_category_list_item,parent,false);
-                return new CategoryViewHolder(view);
+                return new CategoryViewHolder(view, requestManager);
             }
             case Constants.NETWORK_TIMEOUT_TYPE: {
                 view = LayoutInflater.from(parent.getContext()).inflate(R.layout.layout_timeout_list_item,parent,false);
@@ -52,7 +58,7 @@ public class ArticleRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.Vi
             }
             default:
                 view = LayoutInflater.from(parent.getContext()).inflate(R.layout.article_list_item,parent,false);
-                return new ArticleViewHolder(view);
+                return new ArticleViewHolder(view, requestManager);
         }
 
     }
@@ -61,34 +67,9 @@ public class ArticleRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.Vi
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder,int position) {
         mViewType = getItemViewType(position);
         if (mViewType == Constants.ARTICLE_TYPE) {
-            ((ArticleViewHolder) holder).articleTitle.setText(mArticles.get(position).getTitle());
-            ((ArticleViewHolder) holder).articleAuthor.setText(mArticles.get(position).getAuthor());
-
-            RequestOptions requestOptions = new RequestOptions()
-                    .placeholder(R.drawable.ic_launcher_background);
-
-            if(mArticles.get(position).getUrlToImage() == null || mArticles.get(position).getUrlToImage().equals("")) {
-                Glide.with(holder.itemView.getContext())
-                        .setDefaultRequestOptions(requestOptions)
-                        .load(R.drawable.no_image)
-                        .into(((ArticleViewHolder) holder).articleImage);
-            } else {
-                Glide.with(holder.itemView.getContext())
-                        .setDefaultRequestOptions(requestOptions)
-                        .load(mArticles.get(position).getUrlToImage())
-                        .into(((ArticleViewHolder) holder).articleImage);
-            }
+            ((ArticleViewHolder)holder).onBind(mArticles.get(position));
         } else if (mViewType == Constants.CATEGORY_TYPE) {
-            ((CategoryViewHolder) holder).categoryTitle.setText(mArticles.get(position).getTitle());
-
-            RequestOptions requestOptions = new RequestOptions()
-                    .placeholder(R.drawable.ic_launcher_background);
-
-            Uri path = Uri.parse("android.resource://com.example.toja.worldnewscache/drawable/" + mArticles.get(position).getUrlToImage());
-            Glide.with(holder.itemView.getContext())
-                    .setDefaultRequestOptions(requestOptions)
-                    .load(path)
-                    .into(((CategoryViewHolder) holder).categoryImage);
+            ((CategoryViewHolder)holder).onBind(mArticles.get(position));
         }
     }
 
@@ -105,11 +86,11 @@ public class ArticleRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.Vi
         if (mArticles != null) {
             if (mArticles.get(position).getTitle().equals("LOADING...")) {
                 return Constants.LOADING_TYPE;
-            }  else if (mArticles.get(position).getUrl().equals("CATEGORIES...")) {
+            } else if (mArticles.get(position).getUrl().equals("CATEGORIES...")) {
                 return Constants.CATEGORY_TYPE;
-            } else if(mArticles.get(position).getTitle().equals("TIMEOUT...")) {
+            } else if (mArticles.get(position).getTitle().equals("TIMEOUT...")) {
                 return Constants.NETWORK_TIMEOUT_TYPE;
-            } else if(mArticles.get(position).getTitle().equals("EXHAUSTED...")) {
+            } else if (mArticles.get(position).getTitle().equals("EXHAUSTED...")) {
                 return Constants.EXHAUSTED_TYPE;
             } else {
                 return Constants.ARTICLE_TYPE;
@@ -128,10 +109,10 @@ public class ArticleRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.Vi
     }
 
     public void hideLoading() {
-        if(isLoading()) {
-            if(mArticles.get(0).getTitle().equals("LOADING...")) {
+        if (isLoading()) {
+            if (mArticles.get(0).getTitle().equals("LOADING...")) {
                 mArticles.remove(0);
-            } else if(mArticles.get(mArticles.size() - 1).equals("LOADING...")) {
+            } else if (mArticles.get(mArticles.size() - 1).equals("LOADING...")) {
                 mArticles.remove(mArticles.size() - 1);
             }
             notifyDataSetChanged();
@@ -157,7 +138,7 @@ public class ArticleRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.Vi
     }
 
     private void clearArticlesList() {
-        if(mArticles == null) {
+        if (mArticles == null) {
             mArticles = new ArrayList<>();
         } else {
             mArticles.clear();
@@ -166,7 +147,7 @@ public class ArticleRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.Vi
     }
 
     public void displayLoading() {
-        if(mArticles == null) {
+        if (mArticles == null) {
             mArticles = new ArrayList<>();
         }
         if (!isLoading()) {
@@ -213,7 +194,7 @@ public class ArticleRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.Vi
     }
 
     public Article getSelectedArticle(int position) {
-        if(mArticles != null) {
+        if (mArticles != null) {
             if (mArticles.size() > 0) {
                 return mArticles.get(position);
             }
