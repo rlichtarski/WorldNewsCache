@@ -111,6 +111,7 @@ public class MainActivity extends AppCompatActivity {
 
                     if(listResource.data != null) {
                         TestingObservers.printArticles(TAG, listResource.data);
+                        mAdapter.setArticles(listResource.data);
                     } else {
                         Log.e(TAG,"onChanged: ERROR: data is null");
                     }
