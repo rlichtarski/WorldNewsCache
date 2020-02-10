@@ -84,7 +84,7 @@ public class ArticleRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.Vi
             RequestOptions requestOptions = new RequestOptions()
                     .placeholder(R.drawable.ic_launcher_background);
 
-            Uri path = Uri.parse("android.resource://com.example.toja.worldnews/drawable/" + mArticles.get(position).getUrlToImage());
+            Uri path = Uri.parse("android.resource://com.example.toja.worldnewscache/drawable/" + mArticles.get(position).getUrlToImage());
             Glide.with(holder.itemView.getContext())
                     .setDefaultRequestOptions(requestOptions)
                     .load(path)
@@ -105,12 +105,7 @@ public class ArticleRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.Vi
         if (mArticles != null) {
             if (mArticles.get(position).getTitle().equals("LOADING...")) {
                 return Constants.LOADING_TYPE;
-            } else if (position == mArticles.size() - 1
-                    && position != 0
-                    && !mArticles.get(position).getUrl().equals("CATEGORIES...")
-                    && !mArticles.get(position).getTitle().equals("EXHAUSTED...")) {
-                return Constants.LOADING_TYPE;
-            } else if (mArticles.get(position).getUrl().equals("CATEGORIES...")) {
+            }  else if (mArticles.get(position).getUrl().equals("CATEGORIES...")) {
                 return Constants.CATEGORY_TYPE;
             } else if(mArticles.get(position).getTitle().equals("TIMEOUT...")) {
                 return Constants.NETWORK_TIMEOUT_TYPE;
@@ -132,12 +127,12 @@ public class ArticleRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.Vi
         notifyDataSetChanged();
     }
 
-    private void hideLoading() {
+    public void hideLoading() {
         if(isLoading()) {
-            for (Article article : mArticles) {
-                if(article.getTitle().equals("LOADING...")) {
-                    mArticles.remove(article);
-                }
+            if(mArticles.get(0).getTitle().equals("LOADING...")) {
+                mArticles.remove(0);
+            } else if(mArticles.get(mArticles.size() - 1).equals("LOADING...")) {
+                mArticles.remove(mArticles.size() - 1);
             }
             notifyDataSetChanged();
         }
@@ -153,13 +148,31 @@ public class ArticleRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.Vi
         notifyDataSetChanged();
     }
 
+    public void displayOnlyLoading() {
+        clearArticlesList();
+        Article article = new Article();
+        article.setTitle("LOADING...");
+        mArticles.add(article);
+        notifyDataSetChanged();
+    }
+
+    private void clearArticlesList() {
+        if(mArticles == null) {
+            mArticles = new ArrayList<>();
+        } else {
+            mArticles.clear();
+        }
+        notifyDataSetChanged();
+    }
+
     public void displayLoading() {
+        if(mArticles == null) {
+            mArticles = new ArrayList<>();
+        }
         if (!isLoading()) {
             Article article = new Article();
             article.setTitle("LOADING...");
-            List<Article> loadingList = new ArrayList<>();
-            loadingList.add(article);
-            mArticles = loadingList;
+            mArticles.add(article);
             notifyDataSetChanged();
         }
     }
