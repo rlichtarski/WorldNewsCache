@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
@@ -20,6 +22,8 @@ import com.example.toja.worldnewscache.utils.VerticalSpacingItemDecorator;
 import com.example.toja.worldnewscache.viewmodels.ArticleListViewModel;
 
 import java.util.List;
+
+import static com.example.toja.worldnewscache.viewmodels.ArticleListViewModel.QUERY_EXHAUSTED;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -110,10 +114,38 @@ public class MainActivity extends AppCompatActivity {
                     Log.d(TAG,"onChanged: status: " + listResource.status);
 
                     if(listResource.data != null) {
-                        TestingObservers.printArticles(TAG, listResource.data);
-                        mAdapter.setArticles(listResource.data);
-                    } else {
-                        Log.e(TAG,"onChanged: ERROR: data is null");
+                        switch (listResource.status) {
+                            case LOADING: {
+                                if(articleListViewModel.getPageNumber() > 1) {
+                                    mAdapter.displayLoading();
+                                } else {
+                                    mAdapter.displayOnlyLoading();
+                                }
+                                break;
+                            }
+
+                            case ERROR: {
+                                Log.d(TAG,"onChanged: status: ERROR " + listResource.message);
+                                Log.d(TAG,"onChanged: cannot refresh the cache.");
+                                Log.d(TAG,"onChanged: data size: " + listResource.data.size());
+                                mAdapter.hideLoading();
+                                mAdapter.setArticles(listResource.data);
+                                Toast.makeText(MainActivity.this,listResource.message,Toast.LENGTH_SHORT).show();
+
+                                if(listResource.message.equals(QUERY_EXHAUSTED)) {
+                                    mAdapter.displayQueryExhausted();
+                                }
+                                break;
+                            }
+
+                            case SUCCESS: {
+                                Log.d(TAG,"onChanged: cache has been refreshed.");
+                                Log.d(TAG,"onChanged: status: SUCCESS, #Articles: " + listResource.data.size());
+                                mAdapter.hideLoading();
+                                mAdapter.setArticles(listResource.data);
+                                break;
+                            }
+                        }
                     }
                 }
             }
