@@ -57,6 +57,10 @@ public class ArticleListViewModel extends AndroidViewModel {
         return pageNumber;
     }
 
+    public void setViewCategories() {
+        viewState.setValue(ViewState.CATEGORIES);
+    }
+
     public void searchArticlesApi(String query,int pageNumber) {
         if(!mIsPerformingQuery) {
             if(pageNumber == 0) {

@@ -30,6 +30,7 @@ import java.util.List;
 
 import static com.example.toja.worldnewscache.viewmodels.ArticleListViewModel.QUERY_EXHAUSTED;
 import static com.example.toja.worldnewscache.viewmodels.ArticleListViewModel.ViewState.ARTICLES;
+import static com.example.toja.worldnewscache.viewmodels.ArticleListViewModel.ViewState.CATEGORIES;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -211,4 +212,12 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+    @Override
+    public void onBackPressed() {
+        if(articleListViewModel.getViewState().getValue() == CATEGORIES) {
+            super.onBackPressed();
+        } else {
+            articleListViewModel.setViewCategories();
+        }
+    }
 }
