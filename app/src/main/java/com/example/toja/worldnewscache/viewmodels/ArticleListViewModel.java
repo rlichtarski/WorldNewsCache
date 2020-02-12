@@ -38,6 +38,7 @@ public class ArticleListViewModel extends AndroidViewModel {
     public ArticleListViewModel(@NonNull Application application) {
         super(application);
         articleRepository = ArticleRepository.getInstance(application);
+        mIsPerformingQuery = false;
         init();
     }
 
@@ -64,6 +65,13 @@ public class ArticleListViewModel extends AndroidViewModel {
             this.query = query;
             this.pageNumber = pageNumber;
             mIsQueryExhausted = false;
+            executeQuery();
+        }
+    }
+
+    public void searchNextPage() {
+        if(!mIsPerformingQuery && !mIsQueryExhausted) {
+            pageNumber++;
             executeQuery();
         }
     }

@@ -6,6 +6,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
@@ -28,6 +29,7 @@ import com.example.toja.worldnewscache.viewmodels.ArticleListViewModel;
 import java.util.List;
 
 import static com.example.toja.worldnewscache.viewmodels.ArticleListViewModel.QUERY_EXHAUSTED;
+import static com.example.toja.worldnewscache.viewmodels.ArticleListViewModel.ViewState.ARTICLES;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -89,6 +91,18 @@ public class MainActivity extends AppCompatActivity {
         VerticalSpacingItemDecorator itemDecorator = new VerticalSpacingItemDecorator(30);
         recyclerView.addItemDecoration(itemDecorator);
         mAdapter = new ArticleRecyclerAdapter(initGlide());
+
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(@NonNull RecyclerView recyclerView,int newState) {
+                super.onScrollStateChanged(recyclerView,newState);
+
+                if(!recyclerView.canScrollVertically(1) && articleListViewModel.getViewState().getValue() == ARTICLES) {
+                    articleListViewModel.searchNextPage();
+                }
+            }
+        });
+
         recyclerView.setAdapter(mAdapter);
         mAdapter.setOnCategoryClickListener(categoryItemClickListener);
         mAdapter.setOnArticleClickListener(articleItemClickListener);
@@ -182,7 +196,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void searchArticlesApi(String query) {
+        recyclerView.smoothScrollToPosition(0);
         articleListViewModel.searchArticlesApi(query, 1);
+        mSearchView.clearFocus();
     }
 
     private void displayCategories() {
