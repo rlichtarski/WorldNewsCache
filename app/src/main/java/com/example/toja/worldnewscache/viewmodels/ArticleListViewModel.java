@@ -32,6 +32,7 @@ public class ArticleListViewModel extends AndroidViewModel {
     private boolean mIsQueryExhausted;
     private int pageNumber;
     private String query;
+    private boolean cancelRequest;
 
     public static final String QUERY_EXHAUSTED = "No more results";
 
@@ -81,41 +82,55 @@ public class ArticleListViewModel extends AndroidViewModel {
     }
 
     private void executeQuery() {
+        cancelRequest = false;
         mIsPerformingQuery = true;
         viewState.setValue(ViewState.ARTICLES);
         final LiveData<Resource<List<Article>>> articlesSource = articleRepository.searchArticlesApi(query, pageNumber);
-
         articles.addSource(articlesSource,new Observer<Resource<List<Article>>>() {
             @Override
             public void onChanged(Resource<List<Article>> listResource) {
-                if(listResource != null) {
-                    articles.setValue(listResource);
-                    if(listResource.status == Resource.Status.SUCCESS) {
-                        mIsPerformingQuery = false;
-                        if(listResource.data != null) {
-                            if(listResource.data.size() == 0) {
-                                Log.d(TAG,"onChanged: query is empty");
-                                articles.setValue(new Resource<List<Article>>(
-                                        Resource.Status.SUCCESS,
-                                        listResource.data,
-                                        QUERY_EXHAUSTED
-                                ));
+                if(!cancelRequest) {
+                    if(listResource != null) {
+                        articles.setValue(listResource);
+                        if(listResource.status == Resource.Status.SUCCESS) {
+                            mIsPerformingQuery = false;
+                            if(listResource.data != null) {
+                                if(listResource.data.size() == 0) {
+                                    Log.d(TAG,"onChanged: query is empty");
+                                    articles.setValue(new Resource<List<Article>>(
+                                            Resource.Status.SUCCESS,
+                                            listResource.data,
+                                            QUERY_EXHAUSTED
+                                    ));
+                                }
                             }
+                            articles.removeSource(articlesSource);
+                        } else if(listResource.status == Resource.Status.ERROR) {
+                            mIsPerformingQuery = false;
+                            articles.removeSource(articlesSource);
                         }
-                        articles.removeSource(articlesSource);
-                    } else if(listResource.status == Resource.Status.ERROR) {
-                        mIsPerformingQuery = false;
+                    } else {
                         articles.removeSource(articlesSource);
                     }
                 } else {
                     articles.removeSource(articlesSource);
                 }
+
             }
         });
     }
 
     public MutableLiveData<ViewState> getViewState() {
         return viewState;
+    }
+
+    public void cancelSearchRequest() {
+        if(mIsPerformingQuery) {
+            Log.d(TAG,"cancelSearchRequest: cancelling the search request...");
+            cancelRequest = true;
+            mIsPerformingQuery = false;
+            pageNumber = 1;
+        }
     }
 
 }

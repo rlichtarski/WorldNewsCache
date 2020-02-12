@@ -217,6 +217,7 @@ public class MainActivity extends AppCompatActivity {
         if(articleListViewModel.getViewState().getValue() == CATEGORIES) {
             super.onBackPressed();
         } else {
+            articleListViewModel.cancelSearchRequest();
             articleListViewModel.setViewCategories();
         }
     }
