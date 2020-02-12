@@ -6,6 +6,7 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.Observer;
 
 import com.example.toja.worldnewscache.AppExecutors;
 import com.example.toja.worldnewscache.persistence.ArticleDao;
@@ -17,6 +18,7 @@ import com.example.toja.worldnewscache.responses.models.Article;
 import com.example.toja.worldnewscache.utils.NetworkBoundResource;
 import com.example.toja.worldnewscache.utils.Resource;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.example.toja.worldnewscache.utils.Constants.API_KEY;
@@ -47,9 +49,17 @@ public class ArticleRepository {
             protected void saveCallResult(@NonNull NewsResponse item) {
                 if(item.getArticles() != null) {
                     Article[] articles = new Article[item.getArticles().size()];
+                    List<Article> allArticlesFromDb = articleDao.getAllArticles();
 
                     int index = 0;
                     for(long rowId : articleDao.insertArticles((Article[]) (item.getArticles().toArray(articles)))) {
+                        for(Article article : allArticlesFromDb) {
+                            if (articles[index].getTitle().equals(article.getTitle())) {
+                                Log.e(TAG,"saveCallResult: DUPLICATE RESULT!");
+                                articleDao.deleteDuplicate(articles[index].getTitle());
+                            }
+                        }
+
                         if(rowId == -1) {
                             Log.d(TAG,"saveCallResult: CONFLICT. This article is already in cache");
                             //if the article already exists, just update it

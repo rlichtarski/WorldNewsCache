@@ -35,4 +35,9 @@ public interface ArticleDao {
     " ORDER BY articleId LIMIT (:pageNumber * 30)")
     LiveData<List<Article>> searchArticles(String query, int pageNumber);
 
+    @Query("DELETE FROM articles WHERE title = :title")
+    void deleteDuplicate(String title);
+
+    @Query("SELECT * FROM articles")
+    List<Article> getAllArticles();
 }
