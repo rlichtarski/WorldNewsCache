@@ -33,6 +33,7 @@ public class ArticleListViewModel extends AndroidViewModel {
     private int pageNumber;
     private String query;
     private boolean cancelRequest;
+    private long requestStartTime;
 
     public static final String QUERY_EXHAUSTED = "No more results";
 
@@ -82,6 +83,7 @@ public class ArticleListViewModel extends AndroidViewModel {
     }
 
     private void executeQuery() {
+        requestStartTime = System.currentTimeMillis();
         cancelRequest = false;
         mIsPerformingQuery = true;
         viewState.setValue(ViewState.ARTICLES);
@@ -93,6 +95,7 @@ public class ArticleListViewModel extends AndroidViewModel {
                     if(listResource != null) {
                         articles.setValue(listResource);
                         if(listResource.status == Resource.Status.SUCCESS) {
+                            Log.d(TAG,"onChanged: REQUEST TIME: " + (System.currentTimeMillis() - requestStartTime) / 1000);
                             mIsPerformingQuery = false;
                             if(listResource.data != null) {
                                 if(listResource.data.size() == 0) {
@@ -106,6 +109,7 @@ public class ArticleListViewModel extends AndroidViewModel {
                             }
                             articles.removeSource(articlesSource);
                         } else if(listResource.status == Resource.Status.ERROR) {
+                            Log.d(TAG,"onChanged: REQUEST TIME: " + (System.currentTimeMillis() - requestStartTime) / 1000);
                             mIsPerformingQuery = false;
                             articles.removeSource(articlesSource);
                         }
