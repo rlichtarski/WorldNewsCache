@@ -49,7 +49,7 @@ dependencies {
         // Excludes the support library because it's already included by Glide.
         transitive = false
     }
-    implementation 'com.google.android.material:material:1.0.0'
+    implementation 'com.google.android.material:material:1.1.0'
     implementation 'de.hdodenhof:circleimageview:3.0.1'
     implementation 'gr.pantrif:easy-android-splash-screen:0.0.1'
     implementation "androidx.room:room-runtime:$room_version"
