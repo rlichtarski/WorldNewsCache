@@ -46,41 +46,38 @@ public class ArticleActivity extends AppCompatActivity {
     }
 
     private void getIncomingIntent() {
-        if(getIntent().hasExtra("article")) {
+        if (getIntent().hasExtra("article")) {
             Article article = getIntent().getParcelableExtra("article");
             mArticle = article;
-            Log.d(TAG, "article title: " + article.getTitle());
+            Log.d(TAG,"article title: " + article.getTitle());
         }
     }
 
     private void setArticleViewProperties() {
         RequestOptions requestOptions = new RequestOptions()
-                .placeholder(R.drawable.ic_launcher_background);
+                .placeholder(R.drawable.white_background)
+                .error(R.drawable.no_image);
 
-        if(mArticle.getUrlToImage() == null || mArticle.getUrlToImage().equals("")) {
-            Glide.with(this)
-                    .setDefaultRequestOptions(requestOptions)
-                    .load(R.drawable.no_image)
-                    .into(articleImage);
-        } else {
-            Glide.with(this)
-                    .setDefaultRequestOptions(requestOptions)
-                    .load(mArticle.getUrlToImage())
-                    .into(articleImage);
-        }
+        Glide.with(this)
+                .setDefaultRequestOptions(requestOptions)
+                .load(mArticle.getUrlToImage())
+                .into(articleImage);
 
         articleTitle.setText(mArticle.getTitle());
-        if(mArticle.getAuthor() == null) {
+        articlePublishedDate.setText("Date: " + mArticle.getPublishedAt());
+
+        if (mArticle.getAuthor() == null) {
             articleAuthor.setText("Author: Unknown");
         } else {
             articleAuthor.setText("Author: " + mArticle.getAuthor());
         }
-        articlePublishedDate.setText("Date: " + mArticle.getPublishedAt());
+
         SpannableString underlineUrl = new SpannableString(mArticle.getUrl());
-        underlineUrl.setSpan(new UnderlineSpan(), 0, mArticle.getUrl().length(), 0);
+        underlineUrl.setSpan(new UnderlineSpan(),0,mArticle.getUrl().length(),0);   //make article's url underlined
         articleUrl.setText(underlineUrl);
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            articleDescription.setText(Html.fromHtml(mArticle.getDescription(), Html.FROM_HTML_MODE_COMPACT));
+            articleDescription.setText(Html.fromHtml(mArticle.getDescription(),Html.FROM_HTML_MODE_COMPACT));
         } else {
             articleDescription.setText(Html.fromHtml(mArticle.getDescription()));
         }
@@ -88,7 +85,7 @@ public class ArticleActivity extends AppCompatActivity {
         articleUrl.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(mArticle.getUrl()));
+                Intent browserIntent = new Intent(Intent.ACTION_VIEW,Uri.parse(mArticle.getUrl()));
                 startActivity(browserIntent);
             }
         });
