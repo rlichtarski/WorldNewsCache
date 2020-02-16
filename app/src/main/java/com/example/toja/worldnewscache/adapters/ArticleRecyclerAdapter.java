@@ -1,32 +1,40 @@
 package com.example.toja.worldnewscache.adapters;
 
 import android.net.Uri;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.ListPreloader;
+import com.bumptech.glide.RequestBuilder;
 import com.bumptech.glide.RequestManager;
 import com.bumptech.glide.request.RequestOptions;
+import com.bumptech.glide.util.ViewPreloadSizeProvider;
 import com.example.toja.worldnewscache.R;
 import com.example.toja.worldnewscache.responses.models.Article;
 import com.example.toja.worldnewscache.utils.Constants;
 
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
-public class ArticleRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+public class ArticleRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements ListPreloader.PreloadModelProvider {
 
     private List<Article> mArticles;
     public int mViewType;
     private RequestManager requestManager;
+    private ViewPreloadSizeProvider<String> viewPreloadSizeProvider;
 
-    public ArticleRecyclerAdapter(RequestManager requestManager) {
+    public ArticleRecyclerAdapter(RequestManager requestManager, ViewPreloadSizeProvider<String> viewPreloadSizeProvider) {
         this.requestManager = requestManager;
+        this.viewPreloadSizeProvider = viewPreloadSizeProvider;
     }
 
     @NonNull
@@ -38,7 +46,7 @@ public class ArticleRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.Vi
         switch (viewType) {
             case Constants.ARTICLE_TYPE: {
                 view = LayoutInflater.from(parent.getContext()).inflate(R.layout.article_list_item,parent,false);
-                return new ArticleViewHolder(view, requestManager);
+                return new ArticleViewHolder(view, requestManager, viewPreloadSizeProvider);
             }
             case Constants.LOADING_TYPE: {
                 view = LayoutInflater.from(parent.getContext()).inflate(R.layout.layout_loading_list_item,parent,false);
@@ -58,7 +66,7 @@ public class ArticleRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.Vi
             }
             default:
                 view = LayoutInflater.from(parent.getContext()).inflate(R.layout.article_list_item,parent,false);
-                return new ArticleViewHolder(view, requestManager);
+                return new ArticleViewHolder(view, requestManager, viewPreloadSizeProvider);
         }
 
     }
@@ -202,4 +210,20 @@ public class ArticleRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.Vi
         return null;
     }
 
+    @NonNull
+    @Override
+    public List getPreloadItems(int position) {
+        String url = mArticles.get(position).getUrlToImage();
+        if(TextUtils.isEmpty(url)) {
+            return Collections.emptyList();
+        } else {
+            return Collections.singletonList(url);
+        }
+    }
+
+    @Nullable
+    @Override
+    public RequestBuilder<?> getPreloadRequestBuilder(@NonNull Object item) {
+        return requestManager.load(item);
+    }
 }

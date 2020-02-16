@@ -17,7 +17,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.RequestManager;
+import com.bumptech.glide.integration.recyclerview.RecyclerViewPreloader;
 import com.bumptech.glide.request.RequestOptions;
+import com.bumptech.glide.util.ViewPreloadSizeProvider;
 import com.example.toja.worldnewscache.adapters.ArticleRecyclerAdapter;
 import com.example.toja.worldnewscache.responses.models.Article;
 import com.example.toja.worldnewscache.utils.Constants;
@@ -87,11 +89,15 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initRecyclerView() {
+        ViewPreloadSizeProvider<String> viewPreloadSizeProvider = new ViewPreloadSizeProvider<>();
         recyclerView = findViewById(R.id.recycler_view);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         VerticalSpacingItemDecorator itemDecorator = new VerticalSpacingItemDecorator(30);
         recyclerView.addItemDecoration(itemDecorator);
-        mAdapter = new ArticleRecyclerAdapter(initGlide());
+        mAdapter = new ArticleRecyclerAdapter(initGlide(), viewPreloadSizeProvider);
+        RecyclerViewPreloader<String> recyclerViewPreloader = new RecyclerViewPreloader<String>(Glide.with(this), mAdapter, viewPreloadSizeProvider, 15);
+
+        recyclerView.addOnScrollListener(recyclerViewPreloader);
 
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
