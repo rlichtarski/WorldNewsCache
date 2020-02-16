@@ -161,10 +161,6 @@ public class ArticleListViewModel extends AndroidViewModel {
         });
     }
 
-    private void observeArticlesSource() {
-
-    }
-
     public MutableLiveData<ViewState> getViewState() {
         return viewState;
     }
