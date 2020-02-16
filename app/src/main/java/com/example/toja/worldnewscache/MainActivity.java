@@ -71,7 +71,7 @@ public class MainActivity extends AppCompatActivity {
                 mSearchView.clearFocus();
             }
             mAdapter.displayLoading();
-            searchArticlesApi(category);
+            searchArticlesApiByCategory(category);
         }
     };
 
@@ -208,6 +208,12 @@ public class MainActivity extends AppCompatActivity {
         mSearchView.clearFocus();
     }
 
+    private void searchArticlesApiByCategory(String category) {
+        recyclerView.smoothScrollToPosition(0);
+        articleListViewModel.searchArticlesApiByCategory("us", category, 1);
+        mSearchView.clearFocus();
+    }
+
     private void displayCategories() {
         mAdapter.displaySearchCategories();
     }
@@ -223,6 +229,11 @@ public class MainActivity extends AppCompatActivity {
         if(articleListViewModel.getViewState().getValue() == CATEGORIES) {
             super.onBackPressed();
         } else {
+            if(!mSearchView.isIconified()) {
+                mSearchView.setIconified(true);
+                mSearchView.onActionViewCollapsed();
+                mSearchView.clearFocus();
+            }
             articleListViewModel.cancelSearchRequest();
             articleListViewModel.setViewCategories();
         }

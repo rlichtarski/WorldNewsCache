@@ -100,4 +100,65 @@ public class ArticleRepository {
             }
         }.getAsLiveData();
     }
+
+    public LiveData<Resource<List<Article>>> searchArticlesByCategories(final String country,final String category,final int pageNumber) {
+        return new NetworkBoundResource<List<Article>, NewsResponse>(AppExecutors.getInstance()) {
+            @Override
+            protected void saveCallResult(@NonNull NewsResponse item) {
+                if(item.getArticles() != null) {
+                    Article[] articles = new Article[item.getArticles().size()];
+                    List<Article> allArticlesFromDb = articleDao.getAllArticles();
+
+                    int index = 0;
+                    for(long rowId : articleDao.insertArticles((Article[]) (item.getArticles().toArray(articles)))) {
+                        for(Article article : allArticlesFromDb) {
+                            if (articles[index].getTitle().equals(article.getTitle())) {
+                                Log.e(TAG,"saveCallResult: DUPLICATE RESULT!");
+                                articleDao.deleteDuplicate(articles[index].getTitle());
+                            }
+                        }
+
+                        if(rowId == -1) {
+                            Log.d(TAG,"saveCallResult: CONFLICT. This article is already in cache");
+                            //if the article already exists, just update it
+                            articleDao.updateArticles(
+                                    articles[index].getTitle(),
+                                    articles[index].getAuthor(),
+                                    articles[index].getDescription(),
+                                    articles[index].getUrl(),
+                                    articles[index].getUrlToImage(),
+                                    articles[index].getPublishedAt(),
+                                    articles[index].getContent()
+                            );
+                        }
+                        index++;
+                    }
+                }
+            }
+
+            @Override
+            protected boolean shouldFetch(@Nullable List<Article> data) {
+                return true;
+            }
+
+            @NonNull
+            @Override
+            protected LiveData<List<Article>> loadFromDb() {
+                return articleDao.searchArticles(category, pageNumber);
+            }
+
+            @NonNull
+            @Override
+            protected LiveData<ApiResponse<NewsResponse>> createCall() {
+                return ServiceGenerator.getNewsApi().getAllNews(
+                        country,
+                        category,
+                        "en",
+                        String.valueOf(pageNumber),
+                        PAGE_SIZE,
+                        API_KEY
+                );
+            }
+        }.getAsLiveData();
+    }
 }

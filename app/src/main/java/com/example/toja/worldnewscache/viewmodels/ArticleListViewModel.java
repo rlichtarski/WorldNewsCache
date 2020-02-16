@@ -22,7 +22,9 @@ public class ArticleListViewModel extends AndroidViewModel {
     private static final String TAG = "ArticleListViewModel";
 
     public enum ViewState {CATEGORIES, ARTICLES}
+    public enum SearchType {QUERY, CATEGORY}
 
+    private MutableLiveData<SearchType> searchType;
     private MutableLiveData<ViewState> viewState;
     private MediatorLiveData<Resource<List<Article>>> articles = new MediatorLiveData<>();
 
@@ -31,7 +33,7 @@ public class ArticleListViewModel extends AndroidViewModel {
     private boolean mIsPerformingQuery;
     private boolean mIsQueryExhausted;
     private int pageNumber;
-    private String query;
+    private String query, category, country;
     private boolean cancelRequest;
     private long requestStartTime;
 
@@ -49,6 +51,9 @@ public class ArticleListViewModel extends AndroidViewModel {
             viewState = new MutableLiveData<>();
             viewState.setValue(ViewState.CATEGORIES);
         }
+        if(searchType == null) {
+            searchType = new MutableLiveData<>();
+        }
     }
 
     public LiveData<Resource<List<Article>>> getArticles() {
@@ -63,6 +68,28 @@ public class ArticleListViewModel extends AndroidViewModel {
         viewState.setValue(ViewState.CATEGORIES);
     }
 
+    public void setSearchQueryType() {
+        searchType.setValue(SearchType.QUERY);
+    }
+
+    public void setSearchCategoryType() {
+        searchType.setValue(SearchType.CATEGORY);
+    }
+
+    public void searchArticlesApiByCategory(String country,String category,int pageNumber) {
+        if(!mIsPerformingQuery) {
+            if(pageNumber == 0) {
+                pageNumber = 1;
+            }
+            this.country = country;
+            this.category = category;
+            this.pageNumber = pageNumber;
+            mIsQueryExhausted = false;
+            setSearchCategoryType();
+            executeQuery();
+        }
+    }
+
     public void searchArticlesApi(String query,int pageNumber) {
         if(!mIsPerformingQuery) {
             if(pageNumber == 0) {
@@ -71,6 +98,7 @@ public class ArticleListViewModel extends AndroidViewModel {
             this.query = query;
             this.pageNumber = pageNumber;
             mIsQueryExhausted = false;
+            setSearchQueryType();
             executeQuery();
         }
     }
@@ -87,7 +115,16 @@ public class ArticleListViewModel extends AndroidViewModel {
         cancelRequest = false;
         mIsPerformingQuery = true;
         viewState.setValue(ViewState.ARTICLES);
-        final LiveData<Resource<List<Article>>> articlesSource = articleRepository.searchArticlesApi(query, pageNumber);
+        final LiveData<Resource<List<Article>>> articlesSource;
+        if(searchType.getValue() == SearchType.CATEGORY) {
+            articlesSource = articleRepository.searchArticlesByCategories(country, category, pageNumber);
+            Log.d(TAG,"executeQuery: Searching articles through category");
+        } else if(searchType.getValue() == SearchType.QUERY) {
+            articlesSource = articleRepository.searchArticlesApi(query, pageNumber);
+            Log.d(TAG,"executeQuery: Searching articles through query");
+        } else {
+            articlesSource = articleRepository.searchArticlesApi(query, pageNumber);
+        }
         articles.addSource(articlesSource,new Observer<Resource<List<Article>>>() {
             @Override
             public void onChanged(Resource<List<Article>> listResource) {
@@ -122,6 +159,10 @@ public class ArticleListViewModel extends AndroidViewModel {
 
             }
         });
+    }
+
+    private void observeArticlesSource() {
+
     }
 
     public MutableLiveData<ViewState> getViewState() {
