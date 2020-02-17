@@ -24,13 +24,12 @@ import com.example.toja.worldnewscache.adapters.ArticleRecyclerAdapter;
 import com.example.toja.worldnewscache.responses.models.Article;
 import com.example.toja.worldnewscache.utils.Constants;
 import com.example.toja.worldnewscache.utils.Resource;
-import com.example.toja.worldnewscache.utils.TestingObservers;
 import com.example.toja.worldnewscache.utils.VerticalSpacingItemDecorator;
 import com.example.toja.worldnewscache.viewmodels.ArticleListViewModel;
 
 import java.util.List;
 
-import static com.example.toja.worldnewscache.viewmodels.ArticleListViewModel.QUERY_EXHAUSTED;
+import static com.example.toja.worldnewscache.viewmodels.ArticleListViewModel.NO_RESULTS;
 import static com.example.toja.worldnewscache.viewmodels.ArticleListViewModel.ViewState.ARTICLES;
 import static com.example.toja.worldnewscache.viewmodels.ArticleListViewModel.ViewState.CATEGORIES;
 
@@ -166,7 +165,7 @@ public class MainActivity extends AppCompatActivity {
                                 mAdapter.setArticles(listResource.data);
                                 Toast.makeText(MainActivity.this,listResource.message,Toast.LENGTH_SHORT).show();
 
-                                if(listResource.message.equals(QUERY_EXHAUSTED)) {
+                                if(listResource.message.equals(NO_RESULTS)) {
                                     mAdapter.displayQueryExhausted();
                                 }
                                 break;

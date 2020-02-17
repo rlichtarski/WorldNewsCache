@@ -1,7 +1,6 @@
 package com.example.toja.worldnewscache.viewmodels;
 
 import android.app.Application;
-import android.provider.MediaStore;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -38,6 +37,7 @@ public class ArticleListViewModel extends AndroidViewModel {
     private long requestStartTime;
 
     public static final String QUERY_EXHAUSTED = "No more results";
+    public static final String NO_RESULTS = "No results found";
 
     public ArticleListViewModel(@NonNull Application application) {
         super(application);
@@ -138,9 +138,9 @@ public class ArticleListViewModel extends AndroidViewModel {
                                 if(listResource.data.size() == 0) {
                                     Log.d(TAG,"onChanged: query is empty");
                                     articles.setValue(new Resource<List<Article>>(
-                                            Resource.Status.SUCCESS,
+                                            Resource.Status.ERROR,
                                             listResource.data,
-                                            QUERY_EXHAUSTED
+                                            NO_RESULTS
                                     ));
                                 }
                             }

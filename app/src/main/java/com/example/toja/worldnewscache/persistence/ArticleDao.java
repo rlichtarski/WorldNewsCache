@@ -32,7 +32,7 @@ public interface ArticleDao {
                         String content);
 
     @Query("SELECT * FROM articles WHERE title LIKE '%' || :query || '%' OR description LIKE '%' || :query || '%'" +
-    " ORDER BY articleId LIMIT (:pageNumber * 30)")
+    " ORDER BY articleId LIMIT (:pageNumber * 15)")
     LiveData<List<Article>> searchArticles(String query, int pageNumber);
 
     @Query("DELETE FROM articles WHERE title = :title")
